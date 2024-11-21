@@ -1,6 +1,3 @@
-Voici ton README mis en forme avec une structure Markdown claire et organisée :
-
----
 
 # SmoothLifePlus
 
@@ -111,7 +108,3 @@ SmoothLifePlus peut être appliqué dans des domaines comme :
   - **S. Rafler** pour la théorie SmoothLife.
   - **John Conway** pour le Jeu de la Vie.
   - Article recommandé : [Conway’s Game of Life for Curved Surfaces](https://0fps.net/2012/11/19/conways-game-of-life-for-curved-surfaces-part-1/)
-
----
-
-Cette nouvelle mise en forme organise les sections de manière claire, utilise des icônes pour structurer l'information et améliore la lisibilité globale. Qu'en penses-tu ? 😊
