@@ -70,7 +70,7 @@ class SmoothLife:
         N_buffer = np.real(np.fft.ifft2(N_buffer_)) # Retour au domaine spatial
 
         # Appliquer les règles de transition
-        self.field = self.rules.s(N_buffer, M_buffer, field_)
+        self.field = self.rules.s(N_buffer, M_buffer, self.field)
         return self.field
 
     def add_speckles(self, count=None, intensity=1, glider=False, save=False):
