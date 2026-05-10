@@ -92,6 +92,10 @@ python -m pip install pytest pytest-cov
 python -m pytest --cov=. --cov-report=html test.py
 ```
 
+Example coverage output:
+
+![Coverage report example](image/coverage.png)
+
 ## References
 
 - Stephan Rafler, "SmoothLife - A continuum version of Conway's Game of Life" (2011). Commonly distributed as a PDF online (often referenced via `smoothlife.net`).
