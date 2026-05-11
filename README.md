@@ -1,110 +1,113 @@
-
 # SmoothLifePlus
 
-**SmoothLife**, créé par **Stephan Rafler**, est une variante du célèbre **Jeu de la Vie** de John Conway, qui repose sur des règles mathématiques avancées pour modéliser des systèmes dynamiques complexes. Contrairement au jeu original basé sur une grille discrète, SmoothLife introduit une continuité grâce à des valeurs flottantes et des transitions douces.
+SmoothLifePlus is a Python implementation and visualizer of SmoothLife, a continuous-state cellular automaton proposed by Stephan Rafler. It is inspired by Conway's Game of Life but operates on a continuous field (values in the range [0, 1]) with smooth transitions rather than binary cell states.
 
 ![SmoothLife Animation](image/smoothlife.gif)
 
----
+## What this repository contains
 
-## 📜 **Principes fondamentaux**
+- `smoothlife.py`: simulation loop and Matplotlib animation entry point.
+- `rules.py`: SmoothLife transition rules (basic and extended variants).
+- `calculations.py`: precomputed isotropic neighborhood masks and FFT helpers.
+- `parameters.py`: parameter input dialog (Tkinter GUI).
+- `field.json`, `glider_field.json`: example initial conditions (saved as JSON arrays).
+- `test.py`: unit tests (unittest-based).
 
-### 🔹 **Différences avec le Jeu de la Vie classique :**
-- **Transitions continues :** Utilisation de valeurs flottantes et de fonctions sigmoïdes pour des transitions fluides.
-- **Voisinage isotrope :** Sélection des voisins basée sur un cercle plutôt qu’une grille carrée.
-  
-### ⚙️ **Avantages de l'approche circulaire :**
-- **Isotropie :** Effets directionnels éliminés, structures plus naturelles.
-- **Règles dynamiques :** Moyenne pondérée sur une région pour des changements d'état plus réalistes.
-- **Modélisation réaliste :** Influence progressive des voisins, imitant des systèmes biologiques ou physiques.
+## Model overview (implementation notes)
 
----
+This implementation follows the standard SmoothLife structure:
 
-## 🚀 **Statut du projet**
+1. Represent the world as a 2D array of floats in [0, 1].
+2. Compute two neighborhood averages each step:
+   - an "inner" disk average and an "outer" ring (annulus) average.
+3. Apply smooth birth/survival thresholds using sigmoid-like functions to produce the next field values.
 
-- **Statut :** Pleinement fonctionnel  
-- **Version actuelle :** v1.0  
+For performance, neighborhood sums are computed using convolution in the frequency domain (FFT). The masks are precomputed once (see `calculations.py`) and applied each step via elementwise multiplication in Fourier space, followed by an inverse FFT back to the spatial domain (see `SmoothLife.step()` in `smoothlife.py`).
 
----
+## Requirements
 
-## 🛠️ **Fonctionnalités**
+- Python 3.8+ (tested with Python 3.12).
+- Python packages required to run:
+  - `numpy`
+  - `matplotlib`
+- GUI dependency:
+  - `tkinter` (part of the standard library on many platforms, but may require an extra OS package on some Linux distributions such as `python3-tk`)
 
-- Animation fluide en continu sur les plans temporel et spatial.
-- Personnalisation de **20 paramètres** via une interface graphique.
-- Ajout aléatoire ou structuré de configurations initiales (planeurs, tâches).
-- Visualisation avec différentes palettes de couleurs (**viridis**, **plasma**, etc.).
-- Sauvegarde des états initiaux en **JSON**.
-- Simulation optimisée par transformée de **Fourier**.
+Notes on `requirements.txt`:
 
----
+- The repository includes a pinned `requirements.txt` that contains additional packages beyond the core runtime dependencies (for example: `pytest`, `coverage`).
+- It also includes `pywin32`, which is Windows-specific and will not install on Linux/macOS without platform markers.
 
-## 💻 **Installation : Les prérequis**
+## Installation
 
-- **Python 3.8** ou supérieur.
-- **Modules requis :** `matplotlib`, `numpy`, `math`.
+Create a virtual environment and install the core dependencies:
 
-### Installation des dépendances :
 ```bash
-pip install -r requirements.txt
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install numpy matplotlib
 ```
 
----
+If you are on Windows (PowerShell):
 
-## ▶️ **Utilisation**
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install numpy matplotlib
+```
 
-Exécutez le fichier principal :
+## Usage
+
+Run the main script:
+
 ```bash
 python smoothlife.py
 ```
+
+- A Tkinter dialog is used to input parameters.
+- A Matplotlib window then displays the evolving field.
+
 ![SmoothLife settings](image/interface_graphique.png)
 
----
+## Initial conditions and output files
 
-## 🎮 **Exemples de simulations**
+- Random initialization: `SmoothLife.add_speckles()` fills the field with random patches.
+- Glider initialization: enabling the `glider` option loads `glider_field.json`.
+- Saving an initial field: enabling the `save` option writes the generated field to `field.json`.
 
-### 🔸 **Simulation standard :**
+## Testing
+
+Unit tests are in `test.py` and use the standard library `unittest` module.
+
 ```bash
-python smoothlife.py
+MPLBACKEND=Agg python -m unittest -v
 ```
-- **Paramètres :**  
-  `resolution = "256,256"`, `cmap = "viridis"`, `speed = 60`, ...  
 
-### 🔸 **Simulation avec planeurs :**
-- **Paramètres :**  
-  `glider = coché`  
+If you want a coverage report, install `pytest` and `pytest-cov` and run:
 
-### 🔸 **Simulation artistique :**
-- **Paramètres :**  
-  `resolution = "512,512"`, `cmap = "plasma"`, `speed = 30`, ...  
+```bash
+python -m pip install pytest pytest-cov
+python -m pytest --cov=. --cov-report=html test.py
+```
 
----
+Example coverage output:
 
-## 📊 **Test Coverage**
+![Coverage report example](image/coverage.png)
 
-- **Coverage du code :** 88%  
-- **Génération du rapport :**
-  ```bash
-  python -m pytest --cov=. --cov-report html test.py
-  ```
-![Coverage Report](image/coverage.png)
+## References
 
----
+- Stephan Rafler, "SmoothLife - A continuum version of Conway's Game of Life" (2011). Commonly distributed as a PDF online (often referenced via `smoothlife.net`).
+- Martin Gardner, "Mathematical Games: The fantastic combinations of John Conway's new solitaire game 'life'", Scientific American (October 1970).
+- Conway's Game of Life overview: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
+- "Conway's Game of Life for Curved Surfaces" (0fps). https://0fps.net/2012/11/19/conways-game-of-life-for-curved-surfaces-part-1/
+- NumPy FFT documentation (used for frequency-domain convolution in this implementation). https://numpy.org/doc/stable/reference/routines.fft.html
 
-## 🌍 **Applications concrètes**
+## License
 
-SmoothLifePlus peut être appliqué dans des domaines comme :
-- **Biologie computationnelle**
-- **Automates cellulaires continus**
-- **Morphogenèse**
-- **Animations artistiques et visuelles**
+No license file is present in this repository. If you intend to reuse or redistribute this code, clarify licensing with the repository owners first.
 
----
+## Authors
 
-## 👥 **Crédits / Auteurs**
-
-- **Développé par :**  
-  Josselin Perret, Oscar Eav, Antonioli Enzo, Arthur De Bom Van Driessche, Solène Zhang.
-- **Sources d'inspiration :**  
-  - **S. Rafler** pour la théorie SmoothLife.
-  - **John Conway** pour le Jeu de la Vie.
-  - Article recommandé : [Conway’s Game of Life for Curved Surfaces](https://0fps.net/2012/11/19/conways-game-of-life-for-curved-surfaces-part-1/)
+Josselin Perret, Oscar Eav, Antonioli Enzo, Arthur De Bom Van Driessche, Solène Zhang.
